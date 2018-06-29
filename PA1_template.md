@@ -8,8 +8,7 @@ output:
 
 ## Loading and preprocessing the data
 
-The following code will read in the activity data file (note that "activity.csv" is already located in the working directory) and convert dates to R's date format.
-
+Read in the activity data file (note that "activity.csv" is already located in the working directory) and convert dates to R's date format.
 
 ```r
 #read in data
@@ -21,16 +20,21 @@ activityData$date <- as.Date(activityData$date)
 
 ## What is mean total number of steps taken per day?
 
+Calculate total number of steps per day.
 
 ```r
-#calculate total number of steps each day
 sumData <- tapply(activityData$steps, activityData$date, sum)
-#create histogram
+```
+
+Produce histogram from data.
+
+```r
 hist(sumData, xlab="Number of Steps per day", main="Histogram of Daily Steps")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-3-1.png)<!-- -->
 
+Calculate mean and median.
 
 ```r
 #calculate mean
@@ -43,20 +47,19 @@ The mean number of steps taken per day was 1.0766189\times 10^{4}, and the media
 
 ## What is the average daily activity pattern?
 
+Calculate average number of steps per 5-minute interval (ignoring NAs), change intervals from chr to numeric and then plot.
 
 ```r
-#calculate average number of steps per 5-minute interval (ignoring NA)
 timeAvgData <- tapply(activityData$steps, activityData$interval, mean, na.rm=TRUE, simplify=FALSE)
-#change intervals from chr to numeric
 names(timeAvgData) <- as.numeric(names(timeAvgData))
-#plot average steps per 5-minute interval
 plot(x=names(timeAvgData), y=timeAvgData, type="l", xlab="5-minute Intervals", ylab="Average Steps", main="Average Steps per 5-minute Interval")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
+Then calculate location of maximum.
 
 ```r
-#calculate location of max
 maxAvgLoc <- names(which.max(timeAvgData))
 maxAvg <- max(unlist(timeAvgData))
 ```
@@ -65,9 +68,9 @@ The 5-minute interval with the maximum number of steps is 835, with 206.1698113 
 
 ## Imputing missing values
 
+First determine number of NAs.
 
 ```r
-#calculate number of NAs in steps
 bad <- is.na(activityData$steps)
 countNA <- sum(bad)
 ```
@@ -76,20 +79,25 @@ There are 2304 missing values in the dataset.
 
 Missing values in the dataset will be filled using the mean for that particular 5 minute interval.
 
+Copy dataset, calculate mean and replace appropriately.
 
 ```r
-#make new copy of dataset
 imputedData <- activityData
-#calculate average and replace
 imputedData$steps[is.na(imputedData$steps)] <- ave(imputedData$steps, imputedData$interval, FUN=function(x)mean(x, na.rm=TRUE))[is.na(imputedData$steps)]
+```
+
+Then calculate new total number of steps each day, and create histogram.
+
+```r
 #calculate total number of steps each day (for imputed data)
 sumDataNew <- tapply(imputedData$steps, imputedData$date, sum)
 #create histogram
 hist(sumDataNew, xlab="Number of Steps per day", main="Histogram of Daily Steps (imputed data)")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
+And calculate new mean and median.
 
 ```r
 #calculate mean of imputed
@@ -105,13 +113,17 @@ In addition, imputing the missing data will also increase the estimates of the t
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-Note that this code chunk requires the "lattice" plotting system.
+Note: the following code requires the "lattice" plotting system!
 
 
 ```r
 #load lattice, make sure that it's installed!
 library(lattice)
+```
 
+Create a factor variable for weekday/weekend, and add it to the imputed data calculated previously.
+
+```r
 #find day names
 dayname <- weekdays(imputedData$date)
 #convert to weekend/weekday
@@ -121,12 +133,15 @@ dayname[grepl("Monday|Tuesday|Wednesday|Thursday|Friday", dayname)] = "weekday"
 dayname <- factor(dayname)
 #add factor to data
 imputedData$dayname <- dayname
+```
 
-#calculate average number of steps taken per 5 minute interval, on weekdays compared to weekends
+Then, calculate average number of steps taken per 5 minute interval, on weekdays compared to weekends - and create an appropriate panel plot.
+
+```r
 timeAvgDataWeekday <- aggregate(list(Steps = imputedData$steps), list(Interval = imputedData$interval, Day = imputedData$dayname), FUN = mean)
 xyplot(Steps ~ Interval | Day, data = timeAvgDataWeekday, type="l", layout = c(1, 2), main="Activity Pattern Comparison between Weekdays and Weekends")
 ```
 
-![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
 
