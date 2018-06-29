@@ -10,7 +10,8 @@ output:
 
 The following code will read in the activity data file (note that "activity.csv" is already located in the working directory) and convert dates to R's date format.
 
-```{r}
+
+```r
 #read in data
 activityData <- read.csv("activity.csv")
 #process dates
@@ -20,51 +21,63 @@ activityData$date <- as.Date(activityData$date)
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 #calculate total number of steps each day
 sumData <- tapply(activityData$steps, activityData$date, sum)
 #create histogram
 hist(sumData, xlab="Number of Steps per day", main="Histogram of Daily Steps")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+
+```r
 #calculate mean
 meanSteps <- mean(sumData, na.rm = TRUE)
 #calculate median
 medianSteps <- median(sumData, na.rm = TRUE)
 ```
 
-The mean number of steps taken per day was `r meanSteps`, and the median number of steps taken per day was `r medianSteps`.
+The mean number of steps taken per day was 1.0766189\times 10^{4}, and the median number of steps taken per day was 10765.
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 #calculate average number of steps per 5-minute interval (ignoring NA)
 timeAvgData <- tapply(activityData$steps, activityData$interval, mean, na.rm=TRUE, simplify=FALSE)
 #change intervals from chr to numeric
 names(timeAvgData) <- as.numeric(names(timeAvgData))
 #plot average steps per 5-minute interval
 plot(x=names(timeAvgData), y=timeAvgData, type="l", xlab="5-minute Intervals", ylab="Average Steps", main="Average Steps per 5-minute Interval")
+```
+
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+```r
 #calculate location of max
 maxAvgLoc <- names(which.max(timeAvgData))
 maxAvg <- max(unlist(timeAvgData))
 ```
 
-The 5-minute interval with the maximum number of steps is `r maxAvgLoc`, with `r maxAvg` steps.
+The 5-minute interval with the maximum number of steps is 835, with 206.1698113 steps.
 
 ## Imputing missing values
 
-```{r}
+
+```r
 #calculate number of NAs in steps
 bad <- is.na(activityData$steps)
 countNA <- sum(bad)
 ```
 
-There are `r countNA` missing values in the dataset.
+There are 2304 missing values in the dataset.
 
 Missing values in the dataset will be filled using the mean for that particular 5 minute interval.
 
-```{r}
+
+```r
 #make new copy of dataset
 imputedData <- activityData
 #calculate average and replace
@@ -75,14 +88,17 @@ sumDataNew <- tapply(imputedData$steps, imputedData$date, sum)
 hist(sumDataNew, xlab="Number of Steps per day", main="Histogram of Daily Steps (imputed data)")
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+
+```r
 #calculate mean of imputed
 meanStepsNew <- mean(sumDataNew, na.rm = TRUE)
 #calculate median of imputed
 medianStepsNew <- median(sumDataNew, na.rm = TRUE)
 ```
 
-In the imputed data, the mean number of steps taken per day was `r meanStepsNew` (compared to `r meanSteps`), and the median number of steps taken per day was `r medianStepsNew` (compared to `r medianSteps`).
+In the imputed data, the mean number of steps taken per day was 1.0766189\times 10^{4} (compared to 1.0766189\times 10^{4}), and the median number of steps taken per day was 1.0766189\times 10^{4} (compared to 10765).
 
 As shown in the figures above, filling in the missing values using the mean for that particular 5 minute interval will increase the median number of steps taken each day, but will not affect the mean number of steps taken each day.
 In addition, imputing the missing data will also increase the estimates of the total daily number of steps, as values that were previously NA were replaced with values that were greater than or equal to 0.
@@ -91,7 +107,8 @@ In addition, imputing the missing data will also increase the estimates of the t
 
 Note that this code chunk requires the "lattice" plotting system.
 
-```{r}
+
+```r
 #load lattice, make sure that it's installed!
 library(lattice)
 
@@ -109,5 +126,7 @@ imputedData$dayname <- dayname
 timeAvgDataWeekday <- aggregate(list(Steps = imputedData$steps), list(Interval = imputedData$interval, Day = imputedData$dayname), FUN = mean)
 xyplot(Steps ~ Interval | Day, data = timeAvgDataWeekday, type="l", layout = c(1, 2), main="Activity Pattern Comparison between Weekdays and Weekends")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
 
 
