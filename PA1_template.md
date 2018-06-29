@@ -44,6 +44,7 @@ medianSteps <- median(sumData, na.rm = TRUE)
 ```
 
 The mean number of steps taken per day was 1.0766189\times 10^{4}, and the median number of steps taken per day was 10765.
+Note here that because some days in the data have had no step values recorded (all NAs), these have been ignored when calculating the average.
 
 ## What is the average daily activity pattern?
 
@@ -108,7 +109,7 @@ medianStepsNew <- median(sumDataNew, na.rm = TRUE)
 
 In the imputed data, the mean number of steps taken per day was 1.0766189\times 10^{4} (compared to 1.0766189\times 10^{4}), and the median number of steps taken per day was 1.0766189\times 10^{4} (compared to 10765).
 
-As shown in the figures above, filling in the missing values using the mean for that particular 5 minute interval will increase the median number of steps taken each day, but will not affect the mean number of steps taken each day.
+As shown in the figures above, filling in the missing values using the mean for that particular 5 minute interval will increase the median number of steps taken each day, but will not affect the mean number of steps taken each day. This is because when calculating the initial mean (from the non-imputed data), days that had no step measurements at all were dropped from the number of days when calculating the average (as otherwise it would skew the first average lower than it should be)
 In addition, imputing the missing data will also increase the estimates of the total daily number of steps, as values that were previously NA were replaced with values that were greater than or equal to 0.
 
 ## Are there differences in activity patterns between weekdays and weekends?
